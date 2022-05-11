@@ -34,22 +34,23 @@ def PID_Controller_Data():
 
 if __name__ == '__main__':
 	while(True):  
+		# Call this function and scrap data from serial 
 		data  = PID_Controller_Data()
 		encoder_pos = data[0]
 		error = data[1]
+		
+	    	# PID controller
+	    	actual_pos = encoder_pos          # depending on tics/rev (70 pulse per rev)::do math
+		previous_error = error            # This is for derivative calculations
+		error = desired_pos - actual_pos  # This is the error between desired and real
+		total_error += error              # This is for integral gain ki (sum of error over time)
 
-	    # PID controller
-	    actual_pos = encoder_pos          # depending on tics/rev (70 pulse per rev)::do math
-	    previous_error = error            # This is for derivative calculations
-	    error = desired_pos - actual_pos  # This is the error between desired and real
-	    total_error += error              # This is for integral gain ki (sum of error over time)
+		# Now the actual Controller
+		# Multiply kp by proportional error, kd by derivative error and ki by error sum
+		motor_voltage_input = (kp*error) + (kd*(error - previous_error)) + (ki*total_error);
 
-	    # Now the actual Controller
-	    # Multiply kp by proportional error, kd by derivative error and ki by error sum
-	    motor_voltage_input = (kp*error) + (kd*(error - previous_error)) + (ki*total_error);
-
-	    # Now that we have a proposed input (voltage), now send it back 
+		# Now that we have a proposed input (voltage), now send it back 
 		print(motor_voltage_input);
-	    # Using a small delay to receive & send data with minimum errors
-	    time.sleep(1)
-  
+		# Using a small delay to receive & send data with minimum errors
+		time.sleep(1)
+
